@@ -228,21 +228,10 @@ export class AuthRepository {
    * @param token - The refresh token string to delete
    * @returns Promise resolving to the deleted token data, or null if not found
    */
-  async deleteRefreshToken(token: string): Promise<RefreshTokenType | null> {
+  async deleteRefreshToken(token: string): Promise<RefreshTokenType> {
     // Validate input parameter
     if (!token || typeof token !== 'string' || token.trim().length === 0) {
       throw new Error('Token parameter must be a non-empty string')
-    }
-
-    // First check if the token exists
-    const existingToken = await this.prismaService.refreshToken.findUnique({
-      where: {
-        token: token.trim(),
-      },
-    })
-
-    if (!existingToken) {
-      return null
     }
 
     // Delete the token

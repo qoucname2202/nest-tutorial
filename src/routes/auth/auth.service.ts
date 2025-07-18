@@ -1,9 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  UnauthorizedException,
-  UnprocessableEntityException,
-} from '@nestjs/common'
+import { ConflictException, Injectable, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common'
 import { HashingService } from 'src/shared/services/hashing.service'
 import { TokenService } from 'src/shared/services/token.service'
 import { generateOTP, isNotFoundPrismaError, isUniqueConstraintPrismaError } from 'src/shared/helper'
@@ -237,21 +232,27 @@ export class AuthService {
     }
   }
 
-  // async logout(body: { refreshToken: string }): Promise<any> {
-  //   try {
-  //     const { refreshToken } = body
+  async logout({ refreshToken }: RefreshTokenBodyType): Promise<{ message: string }> {
+    try {
+      //1. Kiểm tra refresh-token có hợp lệ hay không
+      await this.tokenService.verifyRefreshToken(refreshToken)
 
-  //     await this.tokenService.verifyToken(refreshToken, JwtType.refreshToken)
+      //2. Xoá refresh token cũ
+      const $deleteRefreshToken = await this.authRepository.deleteRefreshToken(refreshToken)
 
-  //     await this.prismaService.refreshToken.delete({
-  //       where: { token: refreshToken },
-  //     })
-  //     return { message: 'Logout successfuly' }
-  //   } catch (error) {
-  //     if (isNotFoundPrismaError(error)) {
-  //       throw new UnauthorizedException('Refresh token has been revoked or does not exist')
-  //     }
-  //     throw new UnauthorizedException()
-  //   }
-  // }
+      //3. Cập nhật lại trạng thái của thiết bị
+      await this.authRepository.udpateDevice($deleteRefreshToken.deviceId, {
+        isActive: false,
+      })
+      return { message: 'Logout successfuly' }
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error
+      }
+      if (isNotFoundPrismaError(error)) {
+        throw new UnauthorizedException('Refresh token has been revoked or does not exist')
+      }
+      throw new UnauthorizedException()
+    }
+  }
 }

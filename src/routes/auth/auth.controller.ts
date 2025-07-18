@@ -3,6 +3,8 @@ import { AuthService } from './auth.service'
 import {
   LoginBodyDTO,
   LoginResDTO,
+  LogoutBodyDTO,
+  MessageResDTO,
   RefreshTokenBodyDTO,
   RefreshTokenResDTO,
   RegisterBodyDTO,
@@ -48,5 +50,12 @@ export class AuthController {
       userAgent,
       ip,
     })
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  @ZodSerializerDto(MessageResDTO)
+  async logout(@Body() body: LogoutBodyDTO) {
+    return await this.authService.logout(body)
   }
 }
