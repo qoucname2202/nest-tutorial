@@ -1,7 +1,6 @@
 import {
   ConflictException,
   Injectable,
-  NotFoundException,
   UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common'
@@ -192,41 +191,47 @@ export class AuthService {
     }
   }
 
-  async refreshToken({ refreshToken, ip, userAgent }: RefreshTokenBodyType & { userAgent: string; ip: string }) {
+  async refreshToken({ refreshToken, userAgent, ip }: RefreshTokenBodyType & { userAgent: string; ip: string }) {
     try {
       //1. Kiểm tra refresh-token có hợp lệ hay không
       const { userId, email } = await this.tokenService.verifyRefreshToken(refreshToken)
 
       //2. Kiểm tra token có tồn tại trong DB hay không
-      // await this.prismaService.refreshToken.findUniqueOrThrow({
-      //   where: { token: refreshToken },
-      // })
-
+      const refreshTokenInDb = await this.authRepository.findUniqueRefreshTokenIncludeUserRole(refreshToken)
+      if (!refreshTokenInDb) {
+        throw new UnauthorizedException('Refresh token has been revoked or does not exist')
+      }
       //3. Cập nhật lại thiết bị
+      const {
+        deviceId,
+        user: {
+          roleId,
+          role: { name: roleName },
+        },
+      } = refreshTokenInDb
+      const $updateDevice = this.authRepository.udpateDevice(deviceId, {
+        userAgent,
+        ip,
+        lastActive: new Date(),
+      })
 
       //4. Xoá refresh token cũ
-      // await this.prismaService.refreshToken.delete({
-      //   where: { token: refreshToken },
-      // })
-
-      // const user = await this.prismaService.user.findUnique({
-      //   where: { id: +userId },
-      // })
-
-      // if (!user) {
-      //   throw new NotFoundException('User not found')
-      // }
+      const $deleteRefreshToken = this.authRepository.deleteRefreshToken(refreshToken)
 
       //5. Sinh accesstoken và refreshtoken mới
-      // const newTokens = await this.generateAccessAndRefreshToken({
-      //   userId: +userId,
-      //   email,
-      // })
+      const newTokens = this.generateAccessAndRefreshToken({
+        userId: +userId,
+        email,
+        deviceId,
+        roleId,
+        roleName,
+      })
 
-      // return newTokens
+      const [, , tokens] = await Promise.all([$updateDevice, $deleteRefreshToken, newTokens])
+      return tokens
     } catch (error) {
-      if (isNotFoundPrismaError(error)) {
-        throw new UnauthorizedException('Refresh token has been revoked or does not exist')
+      if (error instanceof UnauthorizedException) {
+        throw error
       }
       throw new UnauthorizedException()
     }
