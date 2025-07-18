@@ -101,7 +101,9 @@ export class AuthService {
         })
       }
 
-      return verificationCode
+      return {
+        message: 'Send OTP successfully',
+      }
     } catch (error) {
       if (isUniqueConstraintPrismaError(error)) {
         throw new ConflictException(`User with email ${body.email} not exists in systems.`)
