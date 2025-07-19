@@ -47,6 +47,10 @@ const EnvSchema = z.object({
   ADMIN_PHONE: z.string().min(10, { message: 'ADMIN_PHONE must be at least 10 characters long' }),
   OTP_EXPIRES_IN: z.string().default('5m'),
   RESEND_API_KEY: z.string(),
+  GOOGLE_CLIENT_ID: z.string(),
+  GOOGLE_CLIENT_SECRET: z.string(),
+  GOOGLE_REDIRECT_URI: z.string(),
+  GOOGLE_CLIENT_REDIRECT_URI: z.string(),
 })
 
 // Parse and validate process.env
@@ -74,4 +78,8 @@ export const envConfig = {
   adminPhone: parsedEnv.data.ADMIN_PHONE,
   otpExpiresIn: parsedEnv.data.OTP_EXPIRES_IN,
   resendApiKey: parsedEnv.data.RESEND_API_KEY,
+  googleClientId: parsedEnv.data.GOOGLE_CLIENT_ID,
+  googleClientSecret: parsedEnv.data.GOOGLE_CLIENT_SECRET,
+  googleRedirectUrl: parsedEnv.data.GOOGLE_REDIRECT_URI,
+  googleClientRedirectUri: parsedEnv.data.GOOGLE_CLIENT_REDIRECT_URI,
 }
