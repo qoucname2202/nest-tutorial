@@ -39,6 +39,7 @@ export class AuthRepository {
     return await this.prismaService.verificationCode.upsert({
       where: {
         email: payload.email,
+        type: payload.type,
       },
       create: payload,
       update: {
@@ -291,6 +292,37 @@ export class AuthRepository {
         id: deviceId,
       },
       data,
+    })
+  }
+
+  /**
+   * Updates a specific user record.
+   *
+   * @param email
+   * @param data
+   * @returns
+   */
+  async updateUser(
+    payload: { email: string } | { id: number },
+    data: Partial<Omit<UserType, 'id'>>,
+  ): Promise<UserType> {
+    return await this.prismaService.user.update({
+      where: payload,
+      data,
+    })
+  }
+
+  /**
+   * Delete verification code
+   *
+   * @param id
+   * @returns
+   */
+  async deleteVerificationCode(
+    uniqueVal: { id: number } | { email: string } | { email: string; code: string; type: TypeVerifycationCodeType },
+  ): Promise<VerificationCodeType> {
+    return await this.prismaService.verificationCode.delete({
+      where: uniqueVal,
     })
   }
 }

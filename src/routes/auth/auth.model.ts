@@ -68,6 +68,31 @@ export const RefreshTokenBodySchema = z
 
 export const RefreshTokenResSchema = LoginResSchema
 
+// === Forgot password schema ===
+export const ForgotPasswordBodySchema = z
+  .object({
+    email: z.string().email(),
+    newPassword: z
+      .string()
+      .min(6, 'Password must be at least 6 characters long')
+      .max(100, 'Password must be at most 100 characters long'),
+    confirmNewPassword: z
+      .string()
+      .min(6, 'Confirm password must be at least 6 characters long')
+      .max(100, 'Confirm password must be at most 100 characters long'),
+    code: z.string().length(6, 'OTP code must be exactly 6 digits'),
+  })
+  .strict()
+  .superRefine(({ confirmNewPassword, newPassword }, ctx) => {
+    if (confirmNewPassword !== newPassword) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Confirm password does not match password',
+        path: ['confirmPassword'],
+      })
+    }
+  })
+
 // === Device schema ===
 export const DeviceSchema = z.object({
   id: z.number(),
@@ -126,4 +151,5 @@ export type RoleType = z.infer<typeof RoleSchema>
 export type RefreshTokenType = z.infer<typeof RefreshTokenSchema>
 export type LogoutBodyType = RefreshTokenBodyType
 export type GoogleAuthStateType = z.infer<typeof GoogleAuthStateSchema>
-export type GetAuthorizationUrlResType = z.infer<typeof GetAuthorizationUrlResSchema> 
+export type GetAuthorizationUrlResType = z.infer<typeof GetAuthorizationUrlResSchema>
+export type ForgotPasswordBodyType = z.infer<typeof ForgotPasswordBodySchema>

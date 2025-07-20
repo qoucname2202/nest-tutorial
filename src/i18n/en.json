@@ -1,0 +1,29 @@
+{
+	"Error": {
+		"InvalidOTP": "Verification code for email is not valid.",
+		"InvalidOTPExpired": "Verification code for email has expired.",
+		"RefreshTokenAlreadyUsed": "Refresh token has been used.",
+		"EmailAlreadyExists": "User with email already exists.",
+		"FailedToSendOTPException": "Failed to send OTP to email. Please try again later.",
+		"EmailNotExists": "Email not exists in systems.",
+		"PasswordIncorrect": "Password is incorrect.",
+		"RefreshTokenRevoked": "Refresh token has been revoked or does not exist.",
+		"UnauthorizedAccess": "Unauthorized access.",
+		"InvalidEmail": "Email is not valid.",
+		"InvalidName": "Name is not valid.",
+		"InvalidNameMinLength": "Name is too short.",
+		"InvalidNameMaxLength": "Name must be at most 100 characters long",
+		"InvalidPassword": "Password is not valid.",
+		"InvalidPasswordMinLength": "Password must be at least 6 characters long",
+		"InvalidPasswordMaxLength": "Password must be at most 100 characters long",
+		"InvalidPhoneNumber": "Phone number is not valid.",
+		"InvalidPhoneNumberMinLength": "Phone number must be at least 10 characters long",
+		"InvalidPhoneNumberMaxLength": "Phone number must be at most 15 characters long",
+		"InvalidAvatar": "Avatar is not valid.",
+		"InvalidTOTPSecret": "TOTP secret is not valid.",
+		"InvalidRoleId": "Role is not valid.",
+		"InvalidCreatedById": "Created by is not valid.",
+		"InvalidUpdatedById": "Updated by is not valid.",
+		"InvalidDeletedAt": "Deleted at is not valid."
+	}
+}
