@@ -1,5 +1,5 @@
 import z from 'zod'
 
-export const emptyBodySchema = z.object({})
+export const EmptyBodySchema = z.object({})
 
-export type EmptyBodyType = z.infer<typeof emptyBodySchema>
+export type EmptyBodyType = z.infer<typeof EmptyBodySchema>

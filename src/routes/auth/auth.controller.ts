@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Ip, HttpCode, HttpStatus, Get, Query, Res } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import {
-	ForgotPasswordBodyDTO,
+  ForgotPasswordBodyDTO,
   GetAuthorizationUrlResDTO,
   LoginBodyDTO,
   LoginResDTO,
@@ -12,6 +12,7 @@ import {
   RegisterBodyDTO,
   RegisterResDTO,
   SendOTPBodyDTO,
+  TwoFactorSetupResDTO,
 } from './dto/auth.dto'
 import { ZodSerializerDto } from 'nestjs-zod'
 import { UserAgent } from 'src/shared/decorator/user-agent.decorator'
@@ -19,6 +20,8 @@ import { IsPublic } from 'src/shared/decorator/auth.decorator'
 import { GoogleService } from './google.service'
 import { Response } from 'express'
 import { envConfig } from 'src/shared/config'
+import { EmptyBodyDTO } from 'src/shared/dto/request.dto'
+import { ActiveUser } from 'src/shared/decorator/active-user.decorator'
 
 @Controller('auth')
 export class AuthController {
@@ -95,12 +98,21 @@ export class AuthController {
           : 'An error occurred while logging in with Google, Please try again with another method'
       return res.redirect(`${envConfig.googleClientRedirectUri}?errorMessage=${message}`)
     }
-	}
+  }
 
-	@Post('forgot-password')
-	@IsPublic()
-	@ZodSerializerDto(MessageResDTO)
-	async forgotPassword(@Body() body: ForgotPasswordBodyDTO) {
-		return await this.authService.forgotPassword(body)
-	}
+  @Post('forgot-password')
+  @IsPublic()
+  @ZodSerializerDto(MessageResDTO)
+  async forgotPassword(@Body() body: ForgotPasswordBodyDTO) {
+    return await this.authService.forgotPassword(body)
+  }
+
+  // Sử dụng POST mà không sử dụng GET
+  // Vì POST mang ý nghĩa là tạo ra cái gì đó và POST cũng bảo mật hơn GET
+  // Vì GET có thể được kích hoạt thông qua một URL trên trình duyệt còn POST thì nó đảm bảo tính bảo mật cao hơn
+  @Post('2fa/setup')
+  @ZodSerializerDto(TwoFactorSetupResDTO)
+  async setupTwoFactorAuth(@Body() _: EmptyBodyDTO, @ActiveUser('userId') userId: number) {
+    return await this.authService.setupTwoFactorAuth(userId)
+  }
 }

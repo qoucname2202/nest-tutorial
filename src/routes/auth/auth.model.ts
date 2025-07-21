@@ -60,9 +60,23 @@ export const LoginBodySchema = UserSchema.pick({
 })
   .extend({
     totpCode: z.string().length(6, 'TOTP code must be exactly 6 digits').optional(), // 2FA code
-    code: z.string().length(6, 'OTP code must be exactly 6 digits'), // Email OTP code
+    code: z.string().length(6, 'OTP code must be exactly 6 digits').optional(), // Email OTP code
   })
   .strict()
+  .superRefine(({ totpCode, code }, ctx) => {
+    if (totpCode !== undefined && code !== undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'TOTP code or OTP code is required. Not provided both',
+        path: ['totpCode'],
+      })
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'TOTP code or OTP code is required. Not provided both',
+        path: ['code'],
+      })
+    }
+  })
 
 export const LoginResSchema = z.object({
   accessToken: z.string(),
@@ -170,7 +184,7 @@ export const DisiableTwoFactorBodySchema = z
   })
 export const TwoFactorSetupResSchema = z.object({
   secret: z.string(),
-  url: z.string(),
+  uri: z.string(),
 })
 
 export type RegisterBodyType = z.infer<typeof RegisterBodySchema>

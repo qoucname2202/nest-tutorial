@@ -4,9 +4,10 @@ import { AuthController } from './auth.controller'
 import { RolesService } from './role.service'
 import { AuthRepository } from './auth.repo'
 import { GoogleService } from './google.service'
+import { TwoFactorAuthService } from 'src/shared/services/2fa.service'
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, RolesService, AuthRepository, GoogleService],
+  providers: [AuthService, RolesService, AuthRepository, GoogleService, TwoFactorAuthService],
 })
 export class AuthModule {}

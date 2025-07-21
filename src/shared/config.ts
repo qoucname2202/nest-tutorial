@@ -51,6 +51,9 @@ const EnvSchema = z.object({
   GOOGLE_CLIENT_SECRET: z.string(),
   GOOGLE_REDIRECT_URI: z.string(),
   GOOGLE_CLIENT_REDIRECT_URI: z.string(),
+  APP_NAME: z.string(),
+  TOTP_DIGITS: z.string().default('6'),
+  TOTP_PERIOD: z.string().default('30'),
 })
 
 // Parse and validate process.env
@@ -82,4 +85,7 @@ export const envConfig = {
   googleClientSecret: parsedEnv.data.GOOGLE_CLIENT_SECRET,
   googleRedirectUrl: parsedEnv.data.GOOGLE_REDIRECT_URI,
   googleClientRedirectUri: parsedEnv.data.GOOGLE_CLIENT_REDIRECT_URI,
+  appName: parsedEnv.data.APP_NAME,
+  totpDigits: parsedEnv.data.TOTP_DIGITS,
+  totpPeriod: parsedEnv.data.TOTP_PERIOD,
 }

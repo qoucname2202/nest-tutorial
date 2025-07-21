@@ -24,9 +24,13 @@ import {
   FailedToSendOTPException,
   InvalidOTPException,
   InvalidOTPExpiredExcepton,
+  InvalidTOTPAndCodeException,
+  InvalidTOTPException,
   PasswordIncorrectException,
   RefreshTokenRevokedException,
+  TOTPAlreadyEnabledException,
 } from './error.model'
+import { TwoFactorAuthService } from 'src/shared/services/2fa.service'
 
 @Injectable()
 export class AuthService {
@@ -37,6 +41,7 @@ export class AuthService {
     private readonly authRepository: AuthRepository,
     private readonly shareUserRepository: SharedUserRepository,
     private readonly emailService: EmailService,
+    private readonly twoFactorAuthService: TwoFactorAuthService,
   ) {}
 
   async validateVerificationCode({
@@ -173,6 +178,7 @@ export class AuthService {
 
   async login(body: LoginBodyType & { userAgent: string; ip: string }) {
     try {
+      // 1. Kiểm tra người dùng có tồn tại trong hệ thống hay không
       const user = await this.authRepository.findUniqueUserIncludeRole({ email: body.email })
 
       if (!user) {
@@ -182,6 +188,31 @@ export class AuthService {
       const isPasswordValid = await this.hashingService.comparePassword(body.password, user.password)
       if (!isPasswordValid) {
         throw PasswordIncorrectException
+      }
+
+      // 2. Trường hợp người dùng đã bật mã 2FA mà không truyền TOTPCode hoặc OTPCode
+      if (user.totpSecret) {
+        if (!body.code && !body.totpCode) {
+          throw InvalidTOTPAndCodeException
+        }
+        // Kiểm tra TOTP có hợp lệ không
+        if (body.totpCode) {
+          const isTOTPValid = this.twoFactorAuthService.verifyTOTP({
+            token: body.totpCode,
+            email: user.email,
+            secret: user.totpSecret,
+          })
+          if (!isTOTPValid) {
+            throw InvalidTOTPException
+          }
+        } else if (body.code) {
+          // Kiểm tra OTP có hợp lệ không
+          await this.validateVerificationCode({
+            email: body.email,
+            code: body.code,
+            type: TypeVerifycationCode.LOGIN,
+          })
+        }
       }
 
       const device = await this.authRepository.createDevice({
@@ -317,5 +348,28 @@ export class AuthService {
       }
       throw error
     }
+  }
+
+  async setupTwoFactorAuth(userId: number) {
+    // 1. Kiểm tra user có tồn tại hay không
+    const user = await this.shareUserRepository.findUnique({ id: userId })
+    if (!user) {
+      throw EmailNotExistsException
+    }
+    if (user.totpSecret) {
+      throw TOTPAlreadyEnabledException
+    }
+    // 2. Tạo secret key và uri
+    const { secret, uri } = this.twoFactorAuthService.generateTOTPService(user.email)
+
+    // 3. Cập nhật mã totp vào thông tin user
+    await this.authRepository.updateUser(
+      { id: userId },
+      {
+        totpSecret: secret,
+      },
+    )
+    // 4. Trả về secret key và url
+    return { secret, uri }
   }
 }

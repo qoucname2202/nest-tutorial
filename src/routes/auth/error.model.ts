@@ -42,3 +42,30 @@ export const RefreshTokenRevokedException = new UnauthorizedException({
 // Auth token related errors
 export const RefreshTokenAlreadyUsedException = new UnauthorizedException('Error.RefreshTokenAlreadyUsed')
 export const UnauthorizedAccessException = new UnauthorizedException('Error.UnauthorizedAccess')
+
+// 2FA related errors
+export const InvalidTOTPAndCodeException = new UnprocessableEntityException([
+  {
+    message: 'Error.InvalidTOTPAndCode',
+    path: 'totpCode',
+  },
+  {
+    message: 'Error.InvalidTOTPAndCode',
+    path: 'code',
+  },
+])
+
+export const TOTPAlreadyEnabledException = new ConflictException({
+  message: 'Error.TOTPAlreadyEnabled',
+  path: 'totpCode',
+})
+
+export const InvalidTOTPException = new UnprocessableEntityException({
+  message: 'Error.InvalidTOTP',
+  path: 'totpCode',
+})
+
+export const TOTPNotEnabledException = new UnprocessableEntityException({
+  message: 'Error.TOTPNotEnabled',
+  path: 'totpCode',
+})
