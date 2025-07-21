@@ -49,9 +49,11 @@ export class AuthService {
     type: TypeVerifycationCodeType
   }) {
     const verifycationCode = await this.authRepository.findVerificationCodeByEmailAndType({
-      email,
-      code,
-      type,
+      email_code_type: {
+        email,
+        code,
+        type,
+      },
     })
 
     if (!verifycationCode) {
@@ -83,9 +85,11 @@ export class AuthService {
           roleId: clientRoleId,
         }),
         this.authRepository.deleteVerificationCode({
-          email: body.email,
-          code: body.code,
-          type: TypeVerifycationCode.REGISTER,
+          email_code_type: {
+            email: body.email,
+            code: body.code,
+            type: TypeVerifycationCode.REGISTER,
+          },
         }),
       ])
       return user
@@ -299,9 +303,11 @@ export class AuthService {
           },
         ),
         this.authRepository.deleteVerificationCode({
-          email: body.email,
-          code: body.code,
-          type: TypeVerifycationCode.FORGOT_PASSWORD,
+          email_code_type: {
+            email: body.email,
+            code: body.code,
+            type: TypeVerifycationCode.FORGOT_PASSWORD,
+          },
         }),
       ])
       return { message: 'Change password successfully' }

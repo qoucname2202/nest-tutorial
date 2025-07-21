@@ -38,7 +38,12 @@ export const VerificationCodeSchema = z.object({
   id: z.number().int().positive(),
   email: z.string().email(),
   code: z.string().length(6, 'OTP code must be exactly 6 digits'),
-  type: z.enum([TypeVerifycationCode.REGISTER, TypeVerifycationCode.FORGOT_PASSWORD]),
+  type: z.enum([
+    TypeVerifycationCode.REGISTER,
+    TypeVerifycationCode.FORGOT_PASSWORD,
+    TypeVerifycationCode.LOGIN,
+    TypeVerifycationCode.DISABLE_2FA,
+  ]),
   expiresAt: z.date(),
   createdAt: z.date(),
 })
@@ -52,7 +57,12 @@ export const SendOTPBodySchema = VerificationCodeSchema.pick({
 export const LoginBodySchema = UserSchema.pick({
   email: true,
   password: true,
-}).strict()
+})
+  .extend({
+    totpCode: z.string().length(6, 'TOTP code must be exactly 6 digits').optional(), // 2FA code
+    code: z.string().length(6, 'OTP code must be exactly 6 digits'), // Email OTP code
+  })
+  .strict()
 
 export const LoginResSchema = z.object({
   accessToken: z.string(),
@@ -138,6 +148,31 @@ export const GetAuthorizationUrlResSchema = z.object({
   url: z.string().url(),
 })
 
+export const DisiableTwoFactorBodySchema = z
+  .object({
+    totpCode: z.string().length(6, 'OTP code must be exactly 6 digits').optional(),
+    code: z.string().length(6, 'OTP code must be exactly 6 digits').optional(),
+  })
+  .strict()
+  .superRefine(({ totpCode, code }, ctx) => {
+    if ((totpCode !== undefined) === (code !== undefined)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'TOTP code or OTP code is required. Not provided both',
+        path: ['totpCode'],
+      })
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'TOTP code or OTP code is required. Not provided both',
+        path: ['code'],
+      })
+    }
+  })
+export const TwoFactorSetupResSchema = z.object({
+  secret: z.string(),
+  url: z.string(),
+})
+
 export type RegisterBodyType = z.infer<typeof RegisterBodySchema>
 export type RegisterResType = z.infer<typeof RegisterResSchema>
 export type VerificationCodeType = z.infer<typeof VerificationCodeSchema>
@@ -153,3 +188,5 @@ export type LogoutBodyType = RefreshTokenBodyType
 export type GoogleAuthStateType = z.infer<typeof GoogleAuthStateSchema>
 export type GetAuthorizationUrlResType = z.infer<typeof GetAuthorizationUrlResSchema>
 export type ForgotPasswordBodyType = z.infer<typeof ForgotPasswordBodySchema>
+export type DisiabkeTwoFactorBodyType = z.infer<typeof DisiableTwoFactorBodySchema>
+export type TwoFactorSetupResType = z.infer<typeof TwoFactorSetupResSchema>

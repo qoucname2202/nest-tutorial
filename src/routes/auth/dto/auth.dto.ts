@@ -1,4 +1,5 @@
 import {
+  DisiableTwoFactorBodySchema,
   ForgotPasswordBodySchema,
   GetAuthorizationUrlResSchema,
   GoogleAuthStateSchema,
@@ -14,6 +15,7 @@ import {
   RegisterBodySchema,
   RegisterResSchema,
   SendOTPBodySchema,
+  TwoFactorSetupResSchema,
 } from '../auth.model'
 import { MessageResSchema } from 'src/shared/models/response.model'
 
@@ -42,3 +44,7 @@ export class GoogleAuthStateDTO extends createZodDto(GoogleAuthStateSchema) {}
 export class GetAuthorizationUrlResDTO extends createZodDto(GetAuthorizationUrlResSchema) {}
 
 export class ForgotPasswordBodyDTO extends createZodDto(ForgotPasswordBodySchema) {}
+
+export class TwoFactorSetupResDTO extends createZodDto(TwoFactorSetupResSchema) {}
+
+export class DisiabkeTwoFactorBodyDTO extends createZodDto(DisiableTwoFactorBodySchema) {}
