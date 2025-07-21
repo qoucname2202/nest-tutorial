@@ -1,9 +1,10 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { HttpException, Injectable, UnauthorizedException } from '@nestjs/common'
 import { HashingService } from 'src/shared/services/hashing.service'
 import { TokenService } from 'src/shared/services/token.service'
 import { generateOTP, isNotFoundPrismaError, isUniqueConstraintPrismaError } from 'src/shared/helper'
 import { RolesService } from './role.service'
 import {
+  DisiabkeTwoFactorBodyType,
   ForgotPasswordBodyType,
   LoginBodyType,
   RefreshTokenBodyType,
@@ -29,6 +30,7 @@ import {
   PasswordIncorrectException,
   RefreshTokenRevokedException,
   TOTPAlreadyEnabledException,
+  TOTPNotEnabledException,
 } from './error.model'
 import { TwoFactorAuthService } from 'src/shared/services/2fa.service'
 
@@ -351,25 +353,76 @@ export class AuthService {
   }
 
   async setupTwoFactorAuth(userId: number) {
-    // 1. Kiểm tra user có tồn tại hay không
-    const user = await this.shareUserRepository.findUnique({ id: userId })
-    if (!user) {
-      throw EmailNotExistsException
-    }
-    if (user.totpSecret) {
-      throw TOTPAlreadyEnabledException
-    }
-    // 2. Tạo secret key và uri
-    const { secret, uri } = this.twoFactorAuthService.generateTOTPService(user.email)
+    try {
+      // 1. Kiểm tra user có tồn tại hay không
+      const user = await this.shareUserRepository.findUnique({ id: userId })
+      if (!user) {
+        throw EmailNotExistsException
+      }
+      if (user.totpSecret) {
+        throw TOTPAlreadyEnabledException
+      }
+      // 2. Tạo secret key và uri
+      const { secret, uri } = this.twoFactorAuthService.generateTOTPService(user.email)
 
-    // 3. Cập nhật mã totp vào thông tin user
-    await this.authRepository.updateUser(
-      { id: userId },
-      {
-        totpSecret: secret,
-      },
-    )
-    // 4. Trả về secret key và url
-    return { secret, uri }
+      // 3. Cập nhật mã totp vào thông tin user
+      await this.authRepository.updateUser(
+        { id: userId },
+        {
+          totpSecret: secret,
+        },
+      )
+      // 4. Trả về secret key và url
+      return { secret, uri }
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error
+      }
+      throw new UnauthorizedException()
+    }
+  }
+
+  async disableTwoFactorAuth(body: DisiabkeTwoFactorBodyType & { userId: number }) {
+    try {
+      const { userId, totpCode, code } = body
+      // 1. Kiểm tra user có tồn tại hay không
+      const user = await this.shareUserRepository.findUnique({ id: userId })
+      if (!user) {
+        throw EmailNotExistsException
+      }
+      if (!user.totpSecret) {
+        throw TOTPNotEnabledException
+      }
+      // 2. Kiểm tra mã TOTP có hợp lệ không
+      if (totpCode) {
+        const isTOTPValid = this.twoFactorAuthService.verifyTOTP({
+          token: totpCode,
+          email: user.email,
+          secret: user.totpSecret,
+        })
+        if (!isTOTPValid) {
+          throw InvalidTOTPException
+        }
+      } else if (code) {
+        await this.validateVerificationCode({
+          email: user.email,
+          code,
+          type: TypeVerifycationCode.DISABLE_2FA,
+        })
+      }
+      // 3. Cập nhật lại mã totp
+      await this.authRepository.updateUser(
+        { id: userId },
+        {
+          totpSecret: null,
+        },
+      )
+      return { message: 'Disable 2FA successfully' }
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error
+      }
+      throw new UnauthorizedException()
+    }
   }
 }
