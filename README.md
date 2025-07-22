@@ -70,6 +70,13 @@ $ mau deploy
 
 With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
 
+Step by step run prisma
+
+```bash
+npx prisma migrate dev --name ten_migration
+npx prisma generate
+```
+
 ## Resources
 
 Check out a few resources that may come in handy when working with NestJS:
