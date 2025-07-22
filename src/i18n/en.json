@@ -24,6 +24,18 @@
 		"InvalidRoleId": "Role is not valid.",
 		"InvalidCreatedById": "Created by is not valid.",
 		"InvalidUpdatedById": "Updated by is not valid.",
-		"InvalidDeletedAt": "Deleted at is not valid."
+		"InvalidDeletedAt": "Deleted at is not valid.",
+		"LanguageAlreadyExists": "Language already exists. Please choose a different ID.",
+		"InternalCreateLanguageError": "Failed to create language. Please try again later.",
+		"InternalRetrieveLanguageErrorException": "Failed to retrieve language. Please try again later.",
+		"InternalUpdateLanguageErrorException": "Failed to update language. Please try again later.",
+		"InternalDeleteLanguageError": "Failed to delete language. Please try again later.",
+		"InternalRetrieveLanguageListErrorException": "Failed to retrieve language list. Please try again later.",
+		"NotFoundLanguageException": "Language not found.",
+		"AtLeastOneFieldMustBeProvided": "At least one field must be provided.",
+		"InternalHardDeleteLanguageErrorException": "Failed to hard delete language. Please try again later.",
+		"LanguageNotDeletedException": "Language with ID is not deleted.",
+		"NoLanguageFoundToDeleteException": "No language found to delete.",
+		"InternalCountLanguageErrorException": "Failed to count language. Please try again later."
 	}
 }

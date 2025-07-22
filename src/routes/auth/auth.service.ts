@@ -31,7 +31,7 @@ import {
   RefreshTokenRevokedException,
   TOTPAlreadyEnabledException,
   TOTPNotEnabledException,
-} from './error.model'
+} from './auth.error'
 import { TwoFactorAuthService } from 'src/shared/services/2fa.service'
 
 @Injectable()
