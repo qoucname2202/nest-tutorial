@@ -36,15 +36,15 @@ export class LanguageRepository {
    * @returns Promise resolving to the language or null if not found
    */
   async findUniqueLanguage(id: string, includeDeleted: boolean = false): Promise<LanguageType | null> {
-    const whereClause: any = { id }
+    const objVal: any = { id }
 
     // Exclude soft-deleted records unless explicitly requested
     if (!includeDeleted) {
-      whereClause.deletedAt = null
+      objVal.deletedAt = null
     }
 
     return await this.prismaService.language.findUnique({
-      where: whereClause,
+      where: objVal,
     })
   }
 
@@ -59,14 +59,14 @@ export class LanguageRepository {
     id: string,
     includeDeleted: boolean = false,
   ): Promise<LanguageWithRelationsType | null> {
-    const whereClause: any = { id }
+    const objVal: any = { id }
 
     if (!includeDeleted) {
-      whereClause.deletedAt = null
+      objVal.deletedAt = null
     }
 
     return await this.prismaService.language.findUnique({
-      where: whereClause,
+      where: objVal,
       include: {
         userTranslations: true,
         productTranslations: true,
@@ -107,16 +107,16 @@ export class LanguageRepository {
   }> {
     const { page, limit, search, includeDeleted } = queryParams
     const skip = (page - 1) * limit
-    const whereClause: any = {}
+    const objVal: any = {}
 
     // Exclude soft-deleted records unless explicitly requested
     if (!includeDeleted) {
-      whereClause.deletedAt = null
+      objVal.deletedAt = null
     }
 
     // Add search functionality for name and ID
     if (search) {
-      whereClause.OR = [
+      objVal.OR = [
         {
           name: {
             contains: search,
@@ -135,13 +135,13 @@ export class LanguageRepository {
     // Execute queries in parallel for better performance
     const [languages, totalCount] = await Promise.all([
       this.prismaService.language.findMany({
-        where: whereClause,
+        where: objVal,
         skip,
         take: limit,
         orderBy: [{ createdAt: 'desc' }, { name: 'asc' }],
       }),
       this.prismaService.language.count({
-        where: whereClause,
+        where: objVal,
       }),
     ])
 
@@ -226,7 +226,7 @@ export class LanguageRepository {
 
   /**
    * Permanently deletes a language from the database
-   * WARNING: This action cannot be undone
+   * Recommended to use hard delete
    *
    * @param id - The language ID to permanently delete
    * @returns Promise resolving to the deleted language
@@ -267,14 +267,14 @@ export class LanguageRepository {
    * @returns Promise resolving to boolean indicating existence
    */
   async languageExists(id: string, includeDeleted: boolean = false): Promise<boolean> {
-    const whereClause: any = { id }
+    const objVal: any = { id }
 
     if (!includeDeleted) {
-      whereClause.deletedAt = null
+      objVal.deletedAt = null
     }
 
     const count = await this.prismaService.language.count({
-      where: whereClause,
+      where: objVal,
     })
 
     return count > 0
@@ -287,14 +287,14 @@ export class LanguageRepository {
    * @returns Promise resolving to the total count
    */
   async getLanguageCount(includeDeleted: boolean = false): Promise<any> {
-    const whereClause: any = {}
+    const objVal: any = {}
 
     if (!includeDeleted) {
-      whereClause.deletedAt = null
+      objVal.deletedAt = null
     }
 
     return await this.prismaService.language.count({
-      where: whereClause,
+      where: objVal,
     })
   }
 }

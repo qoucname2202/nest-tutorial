@@ -46,8 +46,10 @@ model User {
   reviews                     Review[]
   createdPermissions          Permission[]          @relation("PermissionCreatedBy")
   updatedPermissions          Permission[]          @relation("PermissionUpdatedBy")
+	deletedPermissions          Permission[]          @relation("PermissionDeletedBy")
   createdRoles                Role[]                @relation("RoleCreatedBy")
   updatedRoles                Role[]                @relation("RoleUpdatedBy")
+	deletedRoles                Role[]                @relation("RoleDeletedBy")
   createdProducts             Product[]             @relation("ProductCreatedBy")
   updatedProducts             Product[]             @relation("ProductUpdatedBy")
   createdCategories           Category[]            @relation("CategoryCreatedBy")
@@ -165,12 +167,15 @@ model Permission {
   createdBy   User? @relation("PermissionCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
   updatedById Int?
   updatedBy   User? @relation("PermissionUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+	deletedById Int?
+  deletedBy   User? @relation("PermissionDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
 	@@index([deletedAt])
+	@@unique([path, method], name: "permission_path_method_unique", map: "permission_path_method_unique")
 }
 
 model Role {
@@ -185,6 +190,8 @@ model Role {
   createdBy   User? @relation("RoleCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
   updatedById Int?
   updatedBy   User? @relation("RoleUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+	deletedById Int?
+  deletedBy   User? @relation("RoleDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
