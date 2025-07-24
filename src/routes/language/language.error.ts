@@ -8,7 +8,7 @@ export const LanguageAlreadyExistsException = new ConflictException([
 ])
 
 export const InternalRetrieveLanguageErrorException = new InternalServerErrorException({
-  message: 'Error.InternalRetrieveLanguageErrorException',
+  message: 'Error.InternalRetrieveLanguageError',
   path: 'languages',
 })
 
