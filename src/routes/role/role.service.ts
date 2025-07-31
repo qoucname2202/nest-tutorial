@@ -35,6 +35,7 @@ import {
   InternalCountRoleErrorException,
   InternalRoleStatsErrorException,
   InternalToggleRoleStatusErrorException,
+  ProhibitedActionOnBaseRoleException,
 } from './role.error'
 
 @Injectable()
@@ -186,6 +187,15 @@ export class RoleService {
         throw AtLeastOneFieldMustBeProvidedForRoleUpdateException
       }
       const existingRole = await this.roleRepository.findOne(id)
+      if (!existingRole) {
+        throw RoleNotFoundException
+      }
+
+      // Prevent deletion of system roles
+      if (existingRole.name === RoleName.Admin) {
+        throw ProhibitedActionOnBaseRoleException
+      }
+
       // If name is being updated, check for conflicts
       if (data.name && data.name !== existingRole?.name) {
         const conflictingRole = await this.roleRepository.findByName(data.name, id)

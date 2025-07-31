@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
   UnprocessableEntityException,
@@ -139,5 +140,10 @@ export const InternalRoleStatsErrorException = new InternalServerErrorException(
 
 export const InternalToggleRoleStatusErrorException = new InternalServerErrorException({
   message: 'Error.InternalToggleRoleStatusError',
+  path: 'roles',
+})
+
+export const ProhibitedActionOnBaseRoleException = new ForbiddenException({
+  message: 'Error.ProhibitedActionOnBaseRole',
   path: 'roles',
 })

@@ -54,6 +54,7 @@ const EnvSchema = z.object({
   APP_NAME: z.string(),
   TOTP_DIGITS: z.string().default('6'),
   TOTP_PERIOD: z.string().default('30'),
+  PREFIX_URL: z.string().default('/api/v1'),
 })
 
 // Parse and validate process.env
@@ -88,4 +89,5 @@ export const envConfig = {
   appName: parsedEnv.data.APP_NAME,
   totpDigits: parsedEnv.data.TOTP_DIGITS,
   totpPeriod: parsedEnv.data.TOTP_PERIOD,
+  prefixUrl: parsedEnv.data.PREFIX_URL,
 }
