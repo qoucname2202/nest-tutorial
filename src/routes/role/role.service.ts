@@ -179,7 +179,7 @@ export class RoleService {
    * @throws RoleAlreadyExistsException if name already exists
    * @throws AtLeastOneFieldMustBeProvidedForRoleUpdateException if no update data is provided
    */
-  async updateRole({ id, data, updatedById }: { id: number; data: UpdateRoleBodyType; updatedById: number }) {
+  async update({ id, data, updatedById }: { id: number; data: UpdateRoleBodyType; updatedById: number }) {
     try {
       // Validate that update data is provided
       if (Object.keys(data).length === 0) {
@@ -228,7 +228,7 @@ export class RoleService {
    * @throws CannotDeleteSystemRoleException if trying to delete system role
    * @throws RoleHasActiveUsersException if role has active users
    */
-  async softDeleteRole(id: number, deletedById?: number): Promise<{ message: string }> {
+  async softDelete({ id, deletedById }: { id: number; deletedById: number }): Promise<{ message: string }> {
     try {
       // Check if role exists and is not already deleted
       const existingRole = await this.roleRepository.findOne(id)
@@ -248,7 +248,7 @@ export class RoleService {
       }
 
       // Soft delete the role
-      await this.roleRepository.softDeleteRole(id, deletedById)
+      await this.roleRepository.softDelete(id, deletedById)
 
       return {
         message: `Role '${existingRole.name}' has been successfully deleted.`,
@@ -258,11 +258,7 @@ export class RoleService {
         throw RoleNotFoundException
       }
 
-      if (
-        error === RoleNotFoundException ||
-        error === CannotDeleteSystemRoleException ||
-        error === RoleHasActiveUsersException
-      ) {
+      if (error instanceof Error) {
         throw error
       }
       throw InternalDeleteRoleErrorException

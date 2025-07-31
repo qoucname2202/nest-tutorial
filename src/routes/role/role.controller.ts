@@ -116,7 +116,7 @@ export class RoleController {
     @Body() updateRoleDto: UpdateRoleBodyDTO,
     @ActiveUser('userId') userId: number,
   ) {
-    return await this.roleService.updateRole({
+    return await this.roleService.update({
       id: params.roleId,
       data: updateRoleDto,
       updatedById: userId,
@@ -136,7 +136,7 @@ export class RoleController {
   @Delete(':roleId')
   @ZodSerializerDto(MessageResponseDTO)
   async softDeleteRole(@Param() params: RoleIdParamDTO, @ActiveUser('userId') userId: number) {
-    return await this.roleService.softDeleteRole(params.roleId, userId)
+    return await this.roleService.softDelete({ id: params.roleId, deletedById: userId })
   }
 
   /**

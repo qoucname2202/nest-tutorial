@@ -18,3 +18,11 @@ export function isValidationPrismaError(error: any): error is Prisma.PrismaClien
 export const generateOTP = (): string => {
   return String(randomInt(100000, 1000000)) // Generates a random 6-digit number
 }
+
+export const stripPrefix = (path: string): string => {
+  const PREFIX_URL = '/api/v1'
+  if (path.startsWith(PREFIX_URL)) {
+    return path.slice(PREFIX_URL.length)
+  }
+  return path
+}

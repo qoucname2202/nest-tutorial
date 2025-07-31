@@ -282,7 +282,7 @@ export class RoleRepository {
    * @param deletedById - ID of the user performing the deletion
    * @returns Promise resolving to the soft-deleted role
    */
-  async softDeleteRole(id: number, deletedById?: number): Promise<RoleType> {
+  async softDelete(id: number, deletedById?: number): Promise<RoleType> {
     return await this.prismaService.role.update({
       where: { id },
       data: {
