@@ -56,6 +56,22 @@
 		"NoPermissionFoundToDeleteException": "No permissions found to delete with the provided IDs.",
 		"InternalAssignRolesToPermissionError": "Failed to assign roles to permission. Please try again later.",
 		"InternalStatisticsError": "Failed to retrieve statistics. Please try again later.",
-		"InternalCountPermissionError": "Failed to count permission. Please try again later."
+		"InternalCountPermissionError": "Failed to count permission. Please try again later.",
+		"RoleNotFound": "Role not found.",
+		"RoleNotFoundById": "Role not found.",
+		"RoleNotFoundByName": "Role not found.",
+		"RoleAlreadyExists": "Role with name already exists.",
+		"RoleNameAlreadyExists": "Role with name already exists.",
+		"InternalCreateRoleError": "Failed to create role. Please try again later.",
+		"InternalRetrieveRoleError": "Failed to retrieve role. Please try again later.",
+		"InternalRetrieveRolesError": "Failed to retrieve role list. Please try again later.",
+		"InternalUpdateRoleError": "Failed to update role. Please try again later.",
+		"InternalDeleteRoleError": "Failed to delete role. Please try again later.",
+		"InternalRestoreRoleError": "Failed to restore role. Please try again later.",
+		"InternalBulkDeleteRolesError": "Failed to delete roles. Please try again later.",
+		"InternalAssignPermissionsToRoleError": "Failed to assign permissions to role. Please try again later.",
+		"InternalCountRoleError": "Failed to count role. Please try again later.",
+		"InternalRoleStatsError": "Failed to retrieve role statistics. Please try again later.",
+		"InternalToggleRoleStatusError": "Failed to toggle role status. Please try again later."
 	}
 }
