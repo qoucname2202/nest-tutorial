@@ -17,6 +17,7 @@ interface RoutePermission {
   method: keyof typeof HTTPMethod
   name: string
   description: string
+  module: string
 }
 
 @Injectable()
@@ -40,6 +41,7 @@ class PermissionSyncService {
         method: layer.route.stack[0].method.toUpperCase() as keyof typeof HTTPMethod,
         name: `${layer.route.stack[0].method.toUpperCase()} ${layer.route.path}`,
         description: `Permission for ${layer.route.stack[0].method.toUpperCase()} ${layer.route.path}`,
+        module: layer.route.path.split('/')[1] || 'root',
       }))
   }
 

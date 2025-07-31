@@ -15,6 +15,10 @@ export const PermissionSchema = z.object({
     .min(1, { message: 'Permission path must not be empty' })
     .max(1000, { message: 'Permission path must be at most 1000 characters long' })
     .regex(/^\/.*/, { message: 'Permission path must start with a forward slash (/)' }),
+  module: z
+    .string({ message: 'Permission module is required' })
+    .min(1, { message: 'Permission module must not be empty' })
+    .max(500, { message: 'Permission module must be at most 500 characters long' }),
   method: z.enum([
     HTTPMethod.GET,
     HTTPMethod.POST,

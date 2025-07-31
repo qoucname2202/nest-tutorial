@@ -18,6 +18,7 @@ export const CreatePermissionBodySchema = PermissionSchema.pick({
   description: true,
   path: true,
   method: true,
+  module: true,
 }).strict()
 
 // === Update Permission Schema ===
@@ -26,6 +27,7 @@ export const UpdatePermissionBodySchema = PermissionSchema.pick({
   description: true,
   path: true,
   method: true,
+  module: true,
 })
   .partial()
   .strict()

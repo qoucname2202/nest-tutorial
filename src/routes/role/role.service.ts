@@ -37,6 +37,7 @@ import {
   InternalToggleRoleStatusErrorException,
   ProhibitedActionOnBaseRoleException,
 } from './role.error'
+import { NotFoundRecordException } from 'src/shared/error'
 
 @Injectable()
 export class RoleService {
@@ -167,6 +168,18 @@ export class RoleService {
     }
   }
 
+  private async verifyRole(roleId: number) {
+    const role = await this.roleRepository.findOne(roleId)
+    if (!role) {
+      throw NotFoundRecordException
+    }
+    const baseRoles: string[] = [RoleName.Admin, RoleName.Client, RoleName.Seller]
+
+    if (baseRoles.includes(role.name)) {
+      throw ProhibitedActionOnBaseRoleException
+    }
+  }
+
   /**
    * Updates an existing role with validation and error handling
    *
@@ -187,14 +200,7 @@ export class RoleService {
         throw AtLeastOneFieldMustBeProvidedForRoleUpdateException
       }
       const existingRole = await this.roleRepository.findOne(id)
-      if (!existingRole) {
-        throw RoleNotFoundException
-      }
-
-      // Prevent deletion of system roles
-      if (existingRole.name === RoleName.Admin) {
-        throw ProhibitedActionOnBaseRoleException
-      }
+      await this.verifyRole(id)
 
       // If name is being updated, check for conflicts
       if (data.name && data.name !== existingRole?.name) {
@@ -242,14 +248,7 @@ export class RoleService {
     try {
       // Check if role exists and is not already deleted
       const existingRole = await this.roleRepository.findOne(id)
-      if (!existingRole) {
-        throw RoleNotFoundException
-      }
-
-      // Prevent deletion of system roles
-      if (this.isSystemRole(existingRole.name)) {
-        throw CannotDeleteSystemRoleException
-      }
+      await this.verifyRole(id)
 
       // Check if role has active users
       const hasActiveUsers = await this.roleRepository.roleHasActiveUsers(id)
@@ -261,7 +260,7 @@ export class RoleService {
       await this.roleRepository.softDelete(id, deletedById)
 
       return {
-        message: `Role '${existingRole.name}' has been successfully deleted.`,
+        message: `Role '${existingRole?.name}' has been successfully deleted.`,
       }
     } catch (error) {
       if (isNotFoundPrismaError(error)) {
@@ -363,14 +362,7 @@ export class RoleService {
     try {
       // Check if role exists
       const existingRole = await this.roleRepository.findOne(id)
-      if (!existingRole) {
-        throw RoleNotFoundException
-      }
-
-      // Prevent deletion of system roles
-      if (this.isSystemRole(existingRole.name)) {
-        throw CannotDeleteSystemRoleException
-      }
+      await this.verifyRole(id)
 
       // Check if role has active users
       const hasActiveUsers = await this.roleRepository.roleHasActiveUsers(id)
@@ -382,7 +374,7 @@ export class RoleService {
       await this.roleRepository.hardDeleteRole(id)
 
       return {
-        message: `Role '${existingRole.name}' has been permanently deleted.`,
+        message: `Role '${existingRole?.name}' has been permanently deleted.`,
       }
     } catch (error) {
       if (isNotFoundPrismaError(error)) {
