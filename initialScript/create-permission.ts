@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core'
 
 import { Logger, Injectable } from '@nestjs/common'
-import { HTTPMethod } from 'src/shared/constants/role.constant'
+import { HTTPMethod, RoleName } from 'src/shared/constants/role.constant'
 import { PrismaService } from 'src/shared/services/prisma.service'
 import { AppModule } from 'src/app.module'
 
@@ -115,6 +115,28 @@ class PermissionSyncService {
 
       this.logger.log(`Deleted ${permissionsToDelete.length} permissions`)
       this.logger.log(`Added ${routesToAdd.length} permissions`)
+
+      // Update permission for admin routes
+      const updatePermissionInDb = await this.prisma.permission.findMany({
+        where: {
+          deletedAt: null,
+        },
+      })
+
+      const adminRole = await this.prisma.role.findFirstOrThrow({
+        where: { name: RoleName.Admin, deletedAt: null },
+      })
+
+      await this.prisma.role.update({
+        where: {
+          id: adminRole.id,
+        },
+        data: {
+          permissions: {
+            set: updatePermissionInDb.map((permission) => ({ id: permission.id })),
+          },
+        },
+      })
 
       await this.prisma.$disconnect()
     } catch (error) {

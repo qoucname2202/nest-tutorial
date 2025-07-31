@@ -1,3 +1,4 @@
+import { CreateRoleResSchema, RoleDetailResType } from './../role.model'
 import { createZodDto } from 'nestjs-zod'
 import {
   CreateRoleBodySchema,
@@ -12,6 +13,7 @@ import {
   GetRolesResSchema,
   GetRoleQuerySchema,
   GetRoleListResSchema,
+  GetRoleDetailResSchema,
 } from '../role.model'
 import { MessageResSchema } from 'src/shared/models/response.model'
 
@@ -22,6 +24,12 @@ import { MessageResSchema } from 'src/shared/models/response.model'
  * Contains role name, description, and active status validation
  */
 export class CreateRoleBodyDTO extends createZodDto(CreateRoleBodySchema) {}
+
+/**
+ * DTO for creating a new role response
+ */
+
+export class CreateRoleResDTO extends createZodDto(CreateRoleResSchema) {}
 
 /**
  * DTO for updating an existing role
@@ -71,7 +79,7 @@ export class ToggleRoleStatusDTO extends createZodDto(ToggleRoleStatusSchema) {}
  * DTO for single role response
  * Excludes sensitive fields like deletedAt and deletedById
  */
-export class RoleResponseDTO extends createZodDto(RoleResponseSchema) {}
+export class GetRoleDetailResDTO extends createZodDto(GetRoleDetailResSchema) {}
 
 /**
  * DTO for paginated role list response

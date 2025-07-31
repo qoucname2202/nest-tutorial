@@ -3,7 +3,6 @@ import { RoleService } from './role.service'
 import {
   CreateRoleBodyDTO,
   UpdateRoleBodyDTO,
-  RoleResponseDTO,
   GetRolesResDTO,
   RoleIdParamDTO,
   BulkDeleteRolesDTO,
@@ -13,6 +12,8 @@ import {
   MessageResponseDTO,
   GetRoleQueryDTO,
   GetRoleListResDTO,
+  GetRoleDetailResDTO,
+  CreateRoleResDTO,
 } from './dto/role.dto'
 import { ZodSerializerDto } from 'nestjs-zod'
 import { ActiveUser } from 'src/shared/decorator/active-user.decorator'
@@ -34,7 +35,7 @@ export class RoleController {
    */
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @ZodSerializerDto(RoleResponseDTO)
+  @ZodSerializerDto(CreateRoleResDTO)
   async create(@Body() body: CreateRoleBodyDTO, @ActiveUser('userId') userId: number) {
     return await this.roleService.create({ data: body, createdById: userId })
   }
@@ -77,7 +78,7 @@ export class RoleController {
    * GET /roles/1
    */
   @Get(':roleId')
-  @ZodSerializerDto(RoleResponseDTO)
+  @ZodSerializerDto(GetRoleDetailResDTO)
   async findOne(@Param() params: RoleIdParamDTO) {
     return await this.roleService.findOne(params.roleId)
   }
@@ -109,7 +110,7 @@ export class RoleController {
    * Body: { "name": "Manager (Updated)", "isActive": false, "permissionIds": [1, 2, 3] }
    */
   @Patch(':roleId')
-  @ZodSerializerDto(RoleResponseDTO)
+  @ZodSerializerDto(GetRoleDetailResDTO)
   async updateRole(
     @Param() params: RoleIdParamDTO,
     @Body() updateRoleDto: UpdateRoleBodyDTO,
@@ -149,7 +150,7 @@ export class RoleController {
    * PATCH /roles/1/restore
    */
   @Patch(':roleId/restore')
-  @ZodSerializerDto(RoleResponseDTO)
+  @ZodSerializerDto(GetRoleDetailResDTO)
   async restoreRole(@Param() params: RoleIdParamDTO, @ActiveUser('userId') userId: number) {
     return await this.roleService.restoreRole(params.roleId, userId)
   }
@@ -221,7 +222,7 @@ export class RoleController {
    * Body: { "isActive": false }
    */
   @Patch(':roleId/toggle-status')
-  @ZodSerializerDto(RoleResponseDTO)
+  @ZodSerializerDto(GetRoleDetailResDTO)
   async toggleRoleStatus(
     @Param() params: RoleIdParamDTO,
     @Body() toggleStatusDto: ToggleRoleStatusDTO,

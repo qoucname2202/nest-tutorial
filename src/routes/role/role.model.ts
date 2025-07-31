@@ -38,6 +38,8 @@ export const RoleResponseSchema = RoleSchema.omit({
   deletedById: true, // Hide deleted by field from public responses
 })
 
+export const GetRoleDetailResSchema = RoleWithPermissionsSchema
+
 // === Role List Using Pagination Response Schema ===
 export const GetRolesResSchema = z.object({
   data: z.array(RoleResponseSchema),
@@ -82,6 +84,8 @@ export const GetRoleQuerySchema = z.object({
     .transform((val) => val === 'true')
     .default('false'),
 })
+
+export const CreateRoleResSchema = RoleSchema
 
 // === Role ID Parameter Schema ===
 export const RoleIdParamSchema = z.object({
@@ -153,3 +157,5 @@ export type RoleNameValidationType = z.infer<typeof RoleNameValidationSchema>
 export type ToggleRoleStatusType = z.infer<typeof ToggleRoleStatusSchema>
 export type GetRoleListResType = z.infer<typeof GetRoleListResSchema>
 export type RoleWithPermissionsType = z.infer<typeof RoleWithPermissionsSchema>
+export type RoleDetailResType = z.infer<typeof GetRoleDetailResSchema>
+export type CreateRoleResType = z.infer<typeof CreateRoleResSchema>

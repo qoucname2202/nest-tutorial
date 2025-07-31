@@ -44,7 +44,9 @@ export class RoleRepository {
         deletedAt: null,
       },
       include: {
-        permissions: true,
+        permissions: {
+          where: { deletedAt: null },
+        },
       },
     })
   }
@@ -231,7 +233,7 @@ export class RoleRepository {
    * @param updatedById - ID of the user performing the update
    * @returns Promise resolving to the updated role
    */
-  async updateRole({
+  async update({
     id,
     data,
     updatedById,
@@ -240,8 +242,22 @@ export class RoleRepository {
     data: UpdateRoleBodyType
     updatedById: number
   }): Promise<RoleType> {
+    // Kiểm tra nếu bất cứ permissionId nào mà soft-delete thì không cho phép cập nhật
+    if (data.permissionIds.length > 0) {
+      const permissions = await this.prismaService.permission.findMany({
+        where: {
+          id: { in: data.permissionIds },
+        },
+      })
+      const deletedPermission = permissions.filter((permission) => permission.deletedAt)
+      if (deletedPermission.length > 0) {
+        const deletedIds = deletedPermission.map((permission) => permission.id).join(', ')
+        throw new Error(`Permission with id has been deleted: ${deletedIds}`)
+      }
+    }
+
     return await this.prismaService.role.update({
-      where: { id },
+      where: { id, deletedAt: null },
       data: {
         name: data.name,
         description: data.description,
@@ -252,7 +268,9 @@ export class RoleRepository {
         updatedById,
       },
       include: {
-        permissions: true,
+        permissions: {
+          where: { deletedAt: null },
+        },
       },
     })
   }

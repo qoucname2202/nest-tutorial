@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import { RoleRepository } from './role.repo'
 import {
   CreateRoleBodyType,
@@ -179,15 +179,7 @@ export class RoleService {
    * @throws RoleAlreadyExistsException if name already exists
    * @throws AtLeastOneFieldMustBeProvidedForRoleUpdateException if no update data is provided
    */
-  async updateRole({
-    id,
-    data,
-    updatedById,
-  }: {
-    id: number
-    data: UpdateRoleBodyType
-    updatedById: number
-  }): Promise<any> {
+  async updateRole({ id, data, updatedById }: { id: number; data: UpdateRoleBodyType; updatedById: number }) {
     try {
       // Validate that update data is provided
       if (Object.keys(data).length === 0) {
@@ -203,7 +195,7 @@ export class RoleService {
         }
       }
       //Update the role
-      const updatedRole = await this.roleRepository.updateRole({ id, data, updatedById })
+      const updatedRole = await this.roleRepository.update({ id, data, updatedById })
 
       return updatedRole
     } catch (error) {
@@ -218,13 +210,8 @@ export class RoleService {
       }
 
       // Re-throw known exceptions
-      if (
-        error === RoleNotFoundException ||
-        error === AtLeastOneFieldMustBeProvidedForRoleUpdateException ||
-        error === CannotModifySystemRoleException ||
-        error === RoleAlreadyExistsException
-      ) {
-        throw error
+      if (error instanceof Error) {
+        throw new BadRequestException(error.message)
       }
       throw InternalUpdateRoleErrorException
     }
